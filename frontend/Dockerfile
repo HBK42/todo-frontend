@@ -1,17 +1,24 @@
-# Use Node.js LTS version
-FROM node:16
+# Stage 1: Build the application
+FROM node:16 AS build
 
-# Set working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY package*.json ./
-RUN npm install
+# Install dependencies
+COPY package.json yarn.lock ./
+RUN yarn install
 
-# Copy all files and build the app
+# Copy source code and build the application
 COPY . .
-RUN npm run build
+RUN yarn build
 
-# Expose and serve the app
-EXPOSE 5000
-CMD [ "npx", "vite", "preview", "--host" ]
+# Stage 2: Serve the application using nginx
+FROM nginx:alpine
+
+# Copy the build output to nginx html folder
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expose the port nginx is running on
+EXPOSE 80
+
+# Start nginx server
+CMD ["nginx", "-g", "daemon off;"]
