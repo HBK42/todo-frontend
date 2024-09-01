@@ -1,0 +1,10 @@
+version: '3'
+services:
+  frontend:
+    image: HBKOfficial42/todo-frontend:latest
+    ports:
+      - "80:80"
+  backend:
+    image: HBKOfficial42/todo-backend:latest
+    ports:
+      - "3000:3000"
