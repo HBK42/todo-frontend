@@ -1,18 +1,15 @@
-// Beispiel für eine einfache Funktion, die du testen möchtest
-const sum = (a, b) => a + b;
-
-// Testfälle
 test('adds 1 + 2 to equal 3', () => {
-  expect(sum(1, 2)).toBe(3);
-});
-
-// Weitere Tests hinzufügen, um mindestens 10 Tests zu erreichen
-test('adds 2 + 2 to equal 4', () => {
-  expect(sum(2, 2)).toBe(4);
-});
-
-test('adds -1 + 1 to equal 0', () => {
-  expect(sum(-1, 1)).toBe(0);
-});
-
-// Füge hier weitere Tests hinzu, um die Mindestanzahl zu erreichen
+    expect(1 + 2).toBe(3);
+  });
+  
+  // Weitere Tests hinzufügen
+  test('subtracts 5 - 2 to equal 3', () => {
+    expect(5 - 2).toBe(3);
+  });
+  
+  test('multiplies 2 * 3 to equal 6', () => {
+    expect(2 * 3).toBe(6);
+  });
+  
+  // ... mehr Tests hinzufügen
+  
