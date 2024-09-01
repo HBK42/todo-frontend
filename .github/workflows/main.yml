@@ -7,7 +7,7 @@ on:
       - deploy/production
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -32,9 +32,9 @@ jobs:
           name: coverage-report
           path: ./frontend/coverage
 
-  deliver:
+  build:
     runs-on: ubuntu-latest
-    needs: build
+    needs: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -42,6 +42,13 @@ jobs:
       - name: Build Docker image
         working-directory: ./frontend
         run: docker build -t my-frontend-app .
+
+  deliver:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Login to Docker Hub
         env:
