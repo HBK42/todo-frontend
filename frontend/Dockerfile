@@ -1,24 +1,21 @@
-# Stage 1: Build the application
-FROM node:16 AS build
+# Use an official Node.js runtime as a parent image
+FROM node:16-alpine
 
+# Set the working directory
 WORKDIR /app
 
-# Install dependencies
-COPY package.json yarn.lock ./
-RUN yarn install
+# Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install
 
-# Copy source code and build the application
+# Copy the rest of the application files
 COPY . .
-RUN yarn build
 
-# Stage 2: Serve the application using nginx
-FROM nginx:alpine
+# Build the frontend application
+RUN npm run build
 
-# Copy the build output to nginx html folder
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Expose the port nginx is running on
+# Expose the port the app runs on
 EXPOSE 80
 
-# Start nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the application
+CMD ["npm", "start"]
