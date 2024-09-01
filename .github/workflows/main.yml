@@ -7,9 +7,31 @@ on:
       - deploy/production
 
 jobs:
-  # Build Stage: Build the application and run tests
+  # Lint Stage: Placeholder for future linting
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Linting Placeholder
+        run: echo "Linting code... (This is a placeholder step)"
+
+  # Test Stage: Placeholder for future tests
+  test:
+    runs-on: ubuntu-latest
+    needs: lint  # Ensures the test job runs after the lint job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Testing Placeholder
+        run: echo "Running tests... (This is a placeholder step)"
+
+  # Build Stage: Build Docker image
   build:
     runs-on: ubuntu-latest
+    needs: test  # Ensures the build job runs after the test job
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -27,17 +49,17 @@ jobs:
         working-directory: ./frontend
         run: npm test
 
-  # Deliver Stage: Build Docker image and push to Docker Hub
-  deliver:
-    runs-on: ubuntu-latest
-    needs: build  # This ensures that the deliver job runs after the build job
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
       - name: Build Docker image
         working-directory: ./frontend
         run: docker build -t my-frontend-app .
+
+  # Deliver Stage: Push Docker image to Docker Hub
+  deliver:
+    runs-on: ubuntu-latest
+    needs: build  # Ensures the deliver job runs after the build job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Login to Docker Hub
         env:
@@ -50,14 +72,22 @@ jobs:
           docker tag my-frontend-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
 
-  # Deploy Stage: Placeholder for future AWS deployment
-  # Currently only pushes Docker image
+  # Deploy Stage: Run Docker image locally on the GitHub Actions runner
   deploy:
     runs-on: ubuntu-latest
-    needs: deliver  # This ensures that the deploy job runs after the deliver job
+    needs: deliver  # Ensures the deploy job runs after the deliver job
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Docker Deploy Placeholder
-        run: echo "Deploying Docker image to server... (This is a placeholder step)"
+      - name: Login to Docker Hub
+        env:
+          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: echo "${DOCKER_HUB_TOKEN}" | docker login -u "${DOCKER_HUB_USERNAME}" --password-stdin
+
+      - name: Pull Docker image from Docker Hub
+        run: docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
+
+      - name: Run Docker image
+        run: docker run -d -p 80:80 ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
