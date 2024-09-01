@@ -1,4 +1,4 @@
-name: Frontend CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,35 +7,36 @@ on:
       - deploy/production
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '14'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
 
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm install
+    - name: Install dependencies
+      run: npm install
 
-      - name: Run tests
-        working-directory: ./frontend
-        run: npm test
+    - name: Run tests
+      run: npm test
 
-      - name: Build Docker image
-        working-directory: ./frontend
-        run: docker build -t my-frontend-app .
+    - name: Build Docker image
+      run: |
+        docker build -t my-frontend-app .
 
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Push Docker image
-        if: github.ref == 'refs/heads/deploy/production'
-        run: |
-          docker tag my-frontend-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
+    - name: Tag Docker image
+      run: |
+        docker tag my-frontend-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
+
+    - name: Push Docker image
+      run: |
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
+      if: github.ref == 'refs/heads/deploy/production'
