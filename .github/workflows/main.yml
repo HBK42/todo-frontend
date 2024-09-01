@@ -7,7 +7,6 @@ on:
       - deploy/production
 
 jobs:
-  # Lint Stage: Placeholder for future linting
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -17,10 +16,9 @@ jobs:
       - name: Linting Placeholder
         run: echo "Linting code... (This is a placeholder step)"
 
-  # Test Stage: Placeholder for future tests
   test:
     runs-on: ubuntu-latest
-    needs: lint  # Ensures the test job runs after the lint job
+    needs: lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,10 +26,9 @@ jobs:
       - name: Testing Placeholder
         run: echo "Running tests... (This is a placeholder step)"
 
-  # Build Stage: Build Docker image
   build:
     runs-on: ubuntu-latest
-    needs: test  # Ensures the build job runs after the test job
+    needs: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -51,12 +48,11 @@ jobs:
 
       - name: Build Docker image
         working-directory: ./frontend
-        run: docker build -t my-frontend-app .
+        run: docker build -t my-frontend-app:latest .
 
-  # Deliver Stage: Push Docker image to Docker Hub
   deliver:
     runs-on: ubuntu-latest
-    needs: build  # Ensures the deliver job runs after the build job
+    needs: build
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -68,15 +64,13 @@ jobs:
         run: echo "${DOCKER_HUB_TOKEN}" | docker login -u "${DOCKER_HUB_USERNAME}" --password-stdin
 
       - name: Push Docker image to Docker Hub
-        if: true
         run: |
-          docker tag my-frontend-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
+          docker tag my-frontend-app:latest ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
 
-  # Deploy Stage: Run Docker image locally on the GitHub Actions runner
   deploy:
     runs-on: ubuntu-latest
-    needs: deliver  # Ensures the deploy job runs after the deliver job
+    needs: deliver
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
