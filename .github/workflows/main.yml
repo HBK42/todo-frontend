@@ -7,9 +7,9 @@ on:
       - deploy/production
 
 jobs:
+  # Build Stage: Build the application and run tests
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -27,15 +27,37 @@ jobs:
         working-directory: ./frontend
         run: npm test
 
+  # Deliver Stage: Build Docker image and push to Docker Hub
+  deliver:
+    runs-on: ubuntu-latest
+    needs: build  # This ensures that the deliver job runs after the build job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Build Docker image
         working-directory: ./frontend
         run: docker build -t my-frontend-app .
 
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+        env:
+          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: echo "${DOCKER_HUB_TOKEN}" | docker login -u "${DOCKER_HUB_USERNAME}" --password-stdin
 
-      - name: Push Docker Image
-        if: true
+      - name: Push Docker image to Docker Hub
         run: |
           docker tag my-frontend-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
+
+  # Deploy Stage: Placeholder for future AWS deployment
+  # Currently only pushes Docker image
+  deploy:
+    runs-on: ubuntu-latest
+    needs: deliver  # This ensures that the deploy job runs after the deliver job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Docker Deploy Placeholder
+        run: echo "Deploying Docker image to server... (This is a placeholder step)"
