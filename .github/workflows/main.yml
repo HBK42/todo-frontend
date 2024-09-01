@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,7 +24,7 @@ jobs:
 
       - name: Run tests with coverage
         working-directory: ./frontend
-        run: npm test
+        run: npm test -- --coverage
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
