@@ -50,12 +50,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Build Docker image
+        working-directory: ./frontend
+        run: docker build -t my-frontend-app .
+
       - name: Login to Docker Hub
         env:
           DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: echo "${DOCKER_HUB_TOKEN}" | docker login -u "${DOCKER_HUB_USERNAME}" --password-stdin
-
+      
       - name: Push Docker image to Docker Hub
         run: |
           docker tag my-frontend-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
