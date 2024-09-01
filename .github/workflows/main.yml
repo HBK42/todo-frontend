@@ -28,12 +28,6 @@ jobs:
           cd frontend
           npm run lint
 
-      - name: Static Code Analysis with SonarQube
-        uses: sonarsource/sonarcloud-github-action@v1
-        with:
-          sonar-project-key: 'your-sonar-project-key-frontend'
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-
       - name: Security Scan with Snyk
         run: |
           cd frontend
