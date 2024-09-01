@@ -39,15 +39,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Docker
-        uses: docker/setup-buildx-action@v2
-
       - name: Build Docker image
         working-directory: ./frontend
-        run: docker build -t my-frontend-app:latest .
-
-      - name: List Docker images
-        run: docker images
+        run: docker build -t my-frontend-app .
 
   deliver:
     runs-on: ubuntu-latest
@@ -61,19 +55,12 @@ jobs:
           DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: echo "${DOCKER_HUB_TOKEN}" | docker login -u "${DOCKER_HUB_USERNAME}" --password-stdin
-
-      - name: Check if Docker image exists
+      - name: Push Docker image
+        if: true
         run: |
-          if ! docker images | grep -q "my-frontend-app"; then
-            echo "Docker image my-frontend-app:latest does not exist"
-            exit 1
-          fi
+          docker tag my-frontend-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
 
-      - name: Tag Docker image
-        run: docker tag my-frontend-app:latest ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
-
-      - name: Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
 
   deploy:
     runs-on: ubuntu-latest
