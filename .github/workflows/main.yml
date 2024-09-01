@@ -55,11 +55,12 @@ jobs:
           DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: echo "${DOCKER_HUB_TOKEN}" | docker login -u "${DOCKER_HUB_USERNAME}" --password-stdin
-
-      - name: Push Docker image to Docker Hub
+      - name: Push Docker image
+        if: true
         run: |
           docker tag my-frontend-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/my-frontend-app:latest
+
 
   deploy:
     runs-on: ubuntu-latest
